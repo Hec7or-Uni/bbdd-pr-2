@@ -20,7 +20,7 @@ CREATE TABLE peliculas (
 CREATE TABLE series (
   id      NUMBER, 
   estreno NUMBER  NOT NULL,
-  fin     NUMBER  NOT NULL,
+  fin     NUMBER,
   CONSTRAINT pk_Ser_id PRIMARY KEY (id),
   CONSTRAINT fk_Ser_id FOREIGN KEY (id) REFERENCES contenido(id),
   CONSTRAINT ck_Ser_estreno CHECK (estreno >= 1850),
@@ -64,7 +64,7 @@ CREATE TABLE contenido_tiene_genero (
 CREATE TABLE relacion_peliculas (
   id_pelicula_a NUMBER,
   id_pelicula_B NUMBER,
-  tipo          VARCHAR2(50),
+  tipo          VARCHAR2(50)  NOT NULL,
   CONSTRAINT pk_RP    PRIMARY KEY (id_pelicula_a, id_pelicula_B),
   CONSTRAINT fk_RP_a  FOREIGN KEY (id_pelicula_a) REFERENCES peliculas(id),
   CONSTRAINT fk_RP_b  FOREIGN KEY (id_pelicula_B) REFERENCES peliculas(id)
