@@ -32,31 +32,31 @@ CREATE TABLE capitulos (
   nombre    VARCHAR2(100),
   estreno   NUMBER  NOT NULL,
   temporada NUMBER,
-  episodio  NUMBER
+  episodio  NUMBER,
   CONSTRAINT pk_Cap_id PRIMARY KEY (id, nombre),
   CONSTRAINT fk_Cap_id FOREIGN KEY (id) REFERENCES contenido(id),
   CONSTRAINT ck_Cap_estreno   CHECK (estreno >= 1850),
   CONSTRAINT ck_Cap_temporada CHECK (temporada >= 1),
-  CONSTRAINT ck_Cap_episodio  CHECK (temporada >= 1)
+  CONSTRAINT ck_Cap_episodio  CHECK (episodio >= 1)
 );
 
 CREATE TABLE personal (
   id        NUMBER, 
   nombre    VARCHAR2(100) NOT NULL,
-  CONSTRAINT pk_Cap_id PRIMARY KEY (id)
+  CONSTRAINT pk_P_id PRIMARY KEY (id)
 );
 
 CREATE TABLE personajes (
   id          NUMBER, 
   nombre      VARCHAR2(100) NOT NULL,
   descripcion VARCHAR2(300),
-  CONSTRAINT pk_Cap_id PRIMARY KEY (id)
+  CONSTRAINT pk_Per_id PRIMARY KEY (id)
 );
 
 -- Tiene N:M
 CREATE TABLE contenido_tiene_genero (
   id_contenido  NUMBER,
-  nombre        NUMBER,
+  nombre        VARCHAR2(100),
   CONSTRAINT pk_CTG PRIMARY KEY (id_contenido, nombre),
   CONSTRAINT fk_CTG_id_contenido FOREIGN KEY (id_contenido) REFERENCES contenido(id),
   CONSTRAINT fk_CTG_nombre       FOREIGN KEY (nombre)       REFERENCES generos(nombre)
