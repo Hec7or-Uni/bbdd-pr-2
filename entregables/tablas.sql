@@ -1,12 +1,12 @@
 CREATE TABLE generos (
   nombre  VARCHAR2(100), 
-  CONSTRAINT pk_Gen_nombre  PRIMARY KEY (nombre),
+  CONSTRAINT pk_Gen_nombre  PRIMARY KEY (nombre)
 );
 
 CREATE TABLE contenido (
   id      NUMBER,
   titulo  VARCHAR2(100) NOT NULL,
-  CONSTRAINT pk_Con_id PRIMARY KEY (id),
+  CONSTRAINT pk_Con_id PRIMARY KEY (id)
 );
 
 CREATE TABLE peliculas (
@@ -14,7 +14,7 @@ CREATE TABLE peliculas (
   estreno NUMBER  NOT NULL,
   CONSTRAINT pk_Pel_id PRIMARY KEY (id),
   CONSTRAINT fk_Pel_id FOREIGN KEY (id) REFERENCES contenido(id),
-  CONSTRAINT ck_Pel_estreno CHECK (estreno >= 1850),
+  CONSTRAINT ck_Pel_estreno CHECK (estreno >= 1850)
 );
 
 CREATE TABLE series (
@@ -24,7 +24,7 @@ CREATE TABLE series (
   CONSTRAINT pk_Ser_id PRIMARY KEY (id),
   CONSTRAINT fk_Ser_id FOREIGN KEY (id) REFERENCES contenido(id),
   CONSTRAINT ck_Ser_estreno CHECK (estreno >= 1850),
-  CONSTRAINT ck_Ser_fin CHECK (estreno <= fin),
+  CONSTRAINT ck_Ser_fin CHECK (estreno <= fin)
 );
 
 CREATE TABLE capitulos (
@@ -37,20 +37,20 @@ CREATE TABLE capitulos (
   CONSTRAINT fk_Cap_id FOREIGN KEY (id) REFERENCES contenido(id),
   CONSTRAINT ck_Cap_estreno   CHECK (estreno >= 1850),
   CONSTRAINT ck_Cap_temporada CHECK (temporada >= 1),
-  CONSTRAINT ck_Cap_episodio  CHECK (temporada >= 1),
+  CONSTRAINT ck_Cap_episodio  CHECK (temporada >= 1)
 );
 
 CREATE TABLE personal (
   id        NUMBER, 
   nombre    VARCHAR2(100) NOT NULL,
-  CONSTRAINT pk_Cap_id PRIMARY KEY (id),
+  CONSTRAINT pk_Cap_id PRIMARY KEY (id)
 );
 
 CREATE TABLE personajes (
   id          NUMBER, 
   nombre      VARCHAR2(100) NOT NULL,
   descripcion VARCHAR2(300),
-  CONSTRAINT pk_Cap_id PRIMARY KEY (id),
+  CONSTRAINT pk_Cap_id PRIMARY KEY (id)
 );
 
 -- Tiene N:M
@@ -59,7 +59,7 @@ CREATE TABLE contenido_tiene_genero (
   nombre        NUMBER,
   CONSTRAINT pk_CTG PRIMARY KEY (id_contenido, nombre),
   CONSTRAINT fk_CTG_id_contenido FOREIGN KEY (id_contenido) REFERENCES contenido(id),
-  CONSTRAINT fk_CTG_nombre       FOREIGN KEY (nombre)       REFERENCES generos(nombre),
+  CONSTRAINT fk_CTG_nombre       FOREIGN KEY (nombre)       REFERENCES generos(nombre)
 );
 
 -- Tiene N:M
