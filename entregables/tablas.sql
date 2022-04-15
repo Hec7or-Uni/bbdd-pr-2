@@ -31,11 +31,13 @@ CREATE TABLE capitulos (
   id        NUMBER, 
   nombre    VARCHAR2(100),
   estreno   NUMBER  NOT NULL,
-  temporada NUMBER  NOT NULL,
+  temporada NUMBER,
+  episodio  NUMBER
   CONSTRAINT pk_Cap_id PRIMARY KEY (id, nombre),
   CONSTRAINT fk_Cap_id FOREIGN KEY (id) REFERENCES contenido(id),
   CONSTRAINT ck_Cap_estreno   CHECK (estreno >= 1850),
   CONSTRAINT ck_Cap_temporada CHECK (temporada >= 1),
+  CONSTRAINT ck_Cap_episodio  CHECK (temporada >= 1),
 );
 
 CREATE TABLE personal (
