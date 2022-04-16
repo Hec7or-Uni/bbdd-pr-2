@@ -5,7 +5,7 @@ CREATE TABLE generos (
 
 CREATE TABLE contenido (
   id      NUMBER,
-  titulo  VARCHAR2(100) NOT NULL,
+  titulo  VARCHAR2(150) NOT NULL,
   CONSTRAINT pk_Con_id PRIMARY KEY (id)
 );
 

@@ -10,7 +10,7 @@ WHERE kind_id = 1;
 
 -- Tabla N:M que sale de la entidad peliculas
 -- Relacion entre peliculas
-SELECT L.movie_id, L.linked_movie_id, T.link
+SELECT L.movie_id AS id_pelicula_a, L.linked_movie_id AS id_pelicula_b, T.link as tipo
 FROM movie_link L, (
 	SELECT *
 	FROM link_type
