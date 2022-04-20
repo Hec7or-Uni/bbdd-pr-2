@@ -6,4 +6,5 @@
 -- Al insertar en [ peliculas | series ] se inserta en contenido.
 
 -- TRIGGER 3:
+-- El final de una serie debe ser posterior a su estreno
 
