@@ -3,8 +3,7 @@
 -- este en la tabla de series
 
 -- TRIGGER 2:
--- Al insertar en interpreta:
--- Se inserta en: [personal, participa y colabora]
+-- Al insertar en [ peliculas | series ] se inserta en contenido.
 
 -- TRIGGER 3:
 
