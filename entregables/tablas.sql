@@ -1,16 +1,16 @@
-CREATE TABLE generos (
-  nombre        VARCHAR2(100),
-  id_contenido  NUMBER,
-  CONSTRAINT pk_Gen PRIMARY KEY (nombre, id_contenido),
-  CONSTRAINT fk_Gen FOREIGN KEY (id_contenido) REFERENCES contenido(id),
-);
-
 CREATE TABLE contenido (
   id      NUMBER,
   titulo  VARCHAR2(150) NOT NULL,
   estreno NUMBER        NOT NULL,
   CONSTRAINT pk_Con_id  PRIMARY KEY (id),
   CONSTRAINT ck_Con_estreno CHECK (estreno >= 1850)
+);
+
+CREATE TABLE generos (
+  nombre        VARCHAR2(100),
+  id_contenido  NUMBER,
+  CONSTRAINT pk_Gen PRIMARY KEY (nombre, id_contenido),
+  CONSTRAINT fk_Gen FOREIGN KEY (id_contenido) REFERENCES contenido(id)
 );
 
 CREATE TABLE peliculas (
@@ -81,7 +81,7 @@ CREATE TABLE colabora (
   CONSTRAINT pk_Col           PRIMARY KEY (id_personal, id_contenido, rol),
   CONSTRAINT fk_Col_personal  FOREIGN KEY (id_personal)   REFERENCES personal(id),
   CONSTRAINT fk_Col_contenido FOREIGN KEY (id_contenido)  REFERENCES contenido(id),
-  CONSTRAINT fk_Col_rol       FOREIGN KEY (rol)           REFERENCES contenido(id)
+  CONSTRAINT fk_Col_rol       FOREIGN KEY (rol)           REFERENCES roles(rol)
 );
 
 CREATE TABLE participa (
@@ -97,6 +97,6 @@ CREATE TABLE interpreta (
   id_contenido  NUMBER,
   id_personaje  NUMBER,
   CONSTRAINT pk_Int           PRIMARY KEY (id_actor, id_contenido, id_personaje),
-  CONSTRAINT fk_Int_personal  FOREIGN KEY (id_actor)                    REFERENCES actores(id),
-  CONSTRAINT fk_Int_participa FOREIGN KEY (id_contenido, id_personaje)  REFERENCES participa(id_contenido, id_personaje)
+  CONSTRAINT fk_Int_personaje FOREIGN KEY (id_personaje)            REFERENCES personajes(id),
+  CONSTRAINT fk_Int_participa FOREIGN KEY (id_actor, id_contenido)  REFERENCES participa(id_actor, id_contenido)
 );
