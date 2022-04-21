@@ -7,7 +7,7 @@ FOR EACH ROW
 DECLARE 
     flag NUMBER;
 BEGIN
-    SELECT COUNT() INTO flag
+    SELECT COUNT(*) INTO flag
     FROM series
     WHERE id = :NEW.id;
 
@@ -23,7 +23,7 @@ FOR EACH ROW
 DECLARE 
     flag NUMBER;
 BEGIN
-    SELECT COUNT() INTO flag
+    SELECT COUNT(*) INTO flag
     FROM peliculas
     WHERE id = :NEW.id;
 
@@ -35,22 +35,38 @@ END;
 
 -- TRIGGER 2:
 -- Al insertar en [ peliculas | series ] se inserta en contenido.
+CREATE OR REPLACE TRIGGER INSERT_PEL
+AFTER INSERT ON conteido_aux
+FOR EACH ROW
+WHEN :NEW.tipo = 'serie' AND (:NEW.estreno <= :NEW.fin OR :NEW.fin IS NULL)
+BEGIN
+  INSERT INTO contenido (id, titulo, estreno) VALUES (:NEW.id, :NEW.titulo, :NEW.estreno);
+  IF :NEW.tipo = 'pelicula' THEN
+    INSERT INTO peliculas (id) VALUES (:NEW.id);
+  ELSE
+    INSERT INTO series (id, fin) VALUES (:NEW.id, :NEW.fin);
+  END IF;
+  -- Eliminamos de la tabla auxiliar la tupla que acabamos de insertar
+  DELETE FROM conteido_aux WHERE id = :NEW.id;
+END;
+/
 
 -- TRIGGER 3:
--- El final de una serie debe ser posterior a su estreno
-CREATE OR REPLACE TRIGGER FECHAS_SERIES
-BEFORE INSERT ON contenido
+-- Comprueba la coherencia de datos:
+-- Si tenemos una tupla en la tabla actores debe estar también en la de colabora
+CREATE OR REPLACE TRIGGER INSERT_ACT
+BEFORE INSERT ON actores
 FOR EACH ROW
 DECLARE 
-    fechaFUN NUMBER;
+    flag NUMBER;
 BEGIN
-    SELECT fechaFundacion INTO fechaFUN 
-    FROM equipos 
-    WHERE :NEW.equipo = nombreCorto;
+  SELECT COUNT(*) INTO flag
+  FROM colabora
+  WHERE id_personal = :NEW.id AND (rol = 'actor' or rol = 'actress');
 
-    IF :NEW.temporada < fechaFUN
-    THEN
-        RAISE_APPLICATION_ERROR (-20001, 'El equipo no existe aún en esta temporada');
-    END IF;
+  IF flag < 1
+  THEN
+      RAISE_APPLICATION_ERROR (-20002, 'La persona insertada no es un actor.');
+  END IF;
 END;
 /
