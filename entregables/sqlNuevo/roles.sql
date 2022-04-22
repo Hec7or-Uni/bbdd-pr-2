@@ -2,8 +2,8 @@
 -- Query: select role from role_type
 -- Date: 2022-04-21 08:34
 */
-INSERT INTO rol ('rol') VALUES ('actor');
-INSERT INTO rol ('rol') VALUES ('actress');
+INSERT INTO roles (rol) VALUES ('actor');
+INSERT INTO roles ('rol') VALUES ('actress');
 INSERT INTO rol ('rol') VALUES ('cinematographer');
 INSERT INTO rol ('rol') VALUES ('composer');
 INSERT INTO rol ('rol') VALUES ('costume designer');
