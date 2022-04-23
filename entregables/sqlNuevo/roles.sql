@@ -3,14 +3,14 @@
 -- Date: 2022-04-21 08:34
 */
 INSERT INTO roles (rol) VALUES ('actor');
-INSERT INTO roles ('rol') VALUES ('actress');
-INSERT INTO rol ('rol') VALUES ('cinematographer');
-INSERT INTO rol ('rol') VALUES ('composer');
-INSERT INTO rol ('rol') VALUES ('costume designer');
-INSERT INTO rol ('rol') VALUES ('director');
-INSERT INTO rol ('rol') VALUES ('editor');
-INSERT INTO rol ('rol') VALUES ('guest');
-INSERT INTO rol ('rol') VALUES ('miscellaneous crew');
-INSERT INTO rol ('rol') VALUES ('producer');
-INSERT INTO rol ('rol') VALUES ('production designer');
-INSERT INTO rol ('rol') VALUES ('writer');
+INSERT INTO roles (rol) VALUES ('actress');
+INSERT INTO roles (rol) VALUES ('cinematographer');
+INSERT INTO roles (rol) VALUES ('composer');
+INSERT INTO roles (rol) VALUES ('costume designer');
+INSERT INTO roles (rol) VALUES ('director');
+INSERT INTO roles (rol) VALUES ('editor');
+INSERT INTO roles (rol) VALUES ('guest');
+INSERT INTO roles (rol) VALUES ('miscellaneous crew');
+INSERT INTO roles (rol) VALUES ('producer');
+INSERT INTO roles (rol) VALUES ('production designer');
+INSERT INTO roles (rol) VALUES ('writer');
