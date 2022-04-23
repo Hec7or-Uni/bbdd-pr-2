@@ -53,7 +53,7 @@ INSERT INTO capitulos (id,nombre,estreno,temporada,episodio) VALUES (196397,'Tem
 INSERT INTO capitulos (id,nombre,estreno,temporada,episodio) VALUES (196397,'Terapia de contacto',1996,5,13);
 INSERT INTO capitulos (id,nombre,estreno,temporada,episodio) VALUES (196397,'Una chica natural',1994,2,10);
 INSERT INTO capitulos (id,nombre,estreno,temporada,episodio) VALUES (196397,'Valiente San Valentín',1996,5,3);
-INSERT INTO capitulos (id,nombre,estreno,temporada,episodio) VALUES (227652,'El senyor Josep enganya a la dona i la dona del senyor Josep falta a l\'home',1981,1,2);
+INSERT INTO capitulos (id,nombre,estreno,temporada,episodio) VALUES (227652,'El senyor Josep enganya a la dona i la dona del senyor Josep falta a l home',1981,1,2);
 INSERT INTO capitulos (id,nombre,estreno,temporada,episodio) VALUES (227652,'Santiago Rusiñol: la vida',1981,1,4);
 INSERT INTO capitulos (id,nombre,estreno,temporada,episodio) VALUES (276971,'Adolphe et les menteuses',1990,NULL,NULL);
 INSERT INTO capitulos (id,nombre,estreno,temporada,episodio) VALUES (276971,'Martingale',1991,NULL,NULL);
@@ -68,7 +68,7 @@ INSERT INTO capitulos (id,nombre,estreno,temporada,episodio) VALUES (350673,'(19
 INSERT INTO capitulos (id,nombre,estreno,temporada,episodio) VALUES (438552,'El vuelo de la cometa',1982,NULL,NULL);
 INSERT INTO capitulos (id,nombre,estreno,temporada,episodio) VALUES (440544,'Shanghai Lilly',1989,4,1);
 INSERT INTO capitulos (id,nombre,estreno,temporada,episodio) VALUES (489705,'La zapatera prodigiosa',1995,2,3);
-INSERT INTO capitulos (id,nombre,estreno,temporada,episodio) VALUES (495049,'Damunt l\'herba',1986,NULL,NULL);
+INSERT INTO capitulos (id,nombre,estreno,temporada,episodio) VALUES (495049,'Damunt l herba',1986,NULL,NULL);
 INSERT INTO capitulos (id,nombre,estreno,temporada,episodio) VALUES (515016,'Tots els que cauen',1989,NULL,NULL);
 INSERT INTO capitulos (id,nombre,estreno,temporada,episodio) VALUES (531596,'Albert i Francina',1981,NULL,NULL);
 INSERT INTO capitulos (id,nombre,estreno,temporada,episodio) VALUES (531596,'El Cafè de la Marina',1981,NULL,NULL);
