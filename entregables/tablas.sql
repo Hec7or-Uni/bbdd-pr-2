@@ -44,7 +44,7 @@ CREATE TABLE capitulos (
   temporada NUMBER,
   episodio  NUMBER,
   CONSTRAINT pk_Cap_id  PRIMARY KEY (id, nombre),
-  CONSTRAINT fk_Cap_id  FOREIGN KEY (id)  REFERENCES contenido(id),
+  CONSTRAINT fk_Cap_id  FOREIGN KEY (id)  REFERENCES series(id),
   CONSTRAINT ck_Cap_estreno   CHECK (estreno >= 1850),
   CONSTRAINT ck_Cap_temporada CHECK (temporada >= 1),
   CONSTRAINT ck_Cap_episodio  CHECK (episodio >= 1)
