@@ -62,8 +62,7 @@ BEGIN
     SELECT estreno INTO fechaEstr FROM contenido WHERE :NEW.id = id;
     IF :NEW.fin < fechaEstr
     THEN
-        DELETE FROM contenido WHERE :NEW.id = id;
-        RAISE_APPLICATION_ERROR (-20002, 'No existe la serie dado que su fecha de fin es anterior a su fecha de estreno, por lo que se ha borrado de contenido');
+        RAISE_APPLICATION_ERROR (-20002, 'La serie: ' || :NEW.id || ' tiene una fecha de finalización menor que la del estreno de la tabla contenido. Cosidera eliminar/corregir la inserción.');
     END IF;
 END;
 /
