@@ -34,24 +34,6 @@ END;
 /
 
 -- TRIGGER 2:
--- Al insertar en [ peliculas | series ] se inserta en contenido.
--- CREATE OR REPLACE TRIGGER INSERT_PEL
--- AFTER INSERT ON conteido_aux
--- FOR EACH ROW
--- WHEN :NEW.tipo = 'serie' AND (:NEW.estreno <= :NEW.fin OR :NEW.fin IS NULL)
--- BEGIN
---   INSERT INTO contenido (id, titulo, estreno) VALUES (:NEW.id, :NEW.titulo, :NEW.estreno);
---   IF :NEW.tipo = 'pelicula' THEN
---     INSERT INTO peliculas (id) VALUES (:NEW.id);
---   ELSE
---     INSERT INTO series (id, fin) VALUES (:NEW.id, :NEW.fin);
---   END IF;
---   -- Eliminamos de la tabla auxiliar la tupla que acabamos de insertar
---   DELETE FROM conteido_aux WHERE id = :NEW.id;
--- END;
--- /
-
--- TRIGGER 2:
 -- COMPRUEBA QUE LAS FECHAS DE INICIO Y FIN DE UNA SERIE TENGAN SENTIDO
 CREATE OR REPLACE TRIGGER CLEAN_DATES
 BEFORE INSERT ON series
