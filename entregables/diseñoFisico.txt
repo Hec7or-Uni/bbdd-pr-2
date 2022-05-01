@@ -1,0 +1,339 @@
+-- Cardinalidad de la tabla contenido
+SELECT COUNT(*)
+FROM contenido;
+
+-- Cardinalidad de la tabla participa
+SELECT COUNT(*)
+FROM participa;
+
+-- Cardinalidad de actores
+SELECT COUNT(*) AS numActores
+FROM (
+    SELECT DISTINCT id_actor
+    FROM participa
+);
+
+-- Cardinalidad de actores
+SELECT COUNT(*) AS numContenidos
+FROM (
+    SELECT DISTINCT id_contenido
+    FROM participa
+);
+
+
+primera consulta
+------------------------------------------------------------------------------------
+
+CREATE MATERIALIZED VIEW numActoresContenido AS
+SELECT COUNT(*) AS num_conteidos_limite_actores
+FROM (
+  -- Devuelve tuplas (num_actores, id_contenido) en las que el num_actores es <= 3 
+  SELECT id_contenido
+  FROM participa
+  GROUP BY id_contenido
+  HAVING COUNT(*) <= 3;
+
+Plan hash value: 2733763034
+ 
+-------------------------------------------------------------------------------------
+| Id  | Operation               | Name      | Rows  | Bytes | Cost (%CPU)| Time     |
+-------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT        |           |     1 |    26 |    77   (3)| 00:00:01 |
+|   1 |  NESTED LOOPS           |           |     1 |    26 |    77   (3)| 00:00:01 |
+|   2 |   VIEW                  |           |     1 |    13 |    70   (3)| 00:00:01 |
+|   3 |    SORT AGGREGATE       |           |     1 |       |            |          |
+|   4 |     VIEW                |           | 42584 |       |    70   (3)| 00:00:01 |
+|*  5 |      HASH GROUP BY      |           | 42584 |   540K|    70   (3)| 00:00:01 |
+|   6 |       TABLE ACCESS FULL | PARTICIPA | 42584 |   540K|    68   (0)| 00:00:01 |
+|   7 |   VIEW                  |           |     1 |    13 |     7   (0)| 00:00:01 |
+|   8 |    SORT AGGREGATE       |           |     1 |       |            |          |
+|   9 |     INDEX FAST FULL SCAN| PK_CON_ID |  5522 |       |     7   (0)| 00:00:01 |
+-------------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   5 - filter(COUNT(*)<=3)
+ 
+Note
+-----
+   - dynamic statistics used: dynamic sampling (level=2)
+
+-----------------------------------------------------------------------------------------------
+modificacion con una vista materializada que tiene calculado ya el numero de actores que 
+participan en menos de 4 peliculas
+
+Plan hash value: 61232729
+ 
+------------------------------------------------------------------------------------------------
+| Id  | Operation                | Name                | Rows  | Bytes | Cost (%CPU)| Time     |
+------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT         |                     |     1 |    26 |    10   (0)| 00:00:01 |
+|   1 |  MERGE JOIN CARTESIAN    |                     |     1 |    26 |    10   (0)| 00:00:01 |
+|   2 |   MAT_VIEW ACCESS FULL   | NUMACTORESCONTENIDO |     1 |    13 |     3   (0)| 00:00:01 |
+|   3 |   BUFFER SORT            |                     |     1 |    13 |     7   (0)| 00:00:01 |
+|   4 |    VIEW                  |                     |     1 |    13 |     7   (0)| 00:00:01 |
+|   5 |     SORT AGGREGATE       |                     |     1 |       |            |          |
+|   6 |      INDEX FAST FULL SCAN| PK_CON_ID           |  5522 |       |     7   (0)| 00:00:01 |
+------------------------------------------------------------------------------------------------
+ 
+Note
+-----
+   - dynamic statistics used: dynamic sampling (level=2)
+
+
+segunda consulta
+------------------------------------------------------------------------------------
+
+Plan hash value: 2468196310
+ 
+-------------------------------------------------------------------------------------
+| Id  | Operation              | Name       | Rows  | Bytes | Cost (%CPU)| Time     |
+-------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT       |            |   134 | 37788 |    64   (4)| 00:00:01 |
+|*  1 |  FILTER                |            |       |       |            |          |
+|   2 |   HASH GROUP BY        |            |   134 | 37788 |    64   (4)| 00:00:01 |
+|*  3 |    HASH JOIN           |            |   134 | 37788 |    63   (2)| 00:00:01 |
+|*  4 |     HASH JOIN          |            |   134 | 27470 |    44   (3)| 00:00:01 |
+|   5 |      NESTED LOOPS      |            |    18 |  3222 |     9   (0)| 00:00:01 |
+|   6 |       TABLE ACCESS FULL| CONTENIDO  |  5522 |   550K|     9   (0)| 00:00:01 |
+|*  7 |       INDEX UNIQUE SCAN| PK_GEN     |     1 |    77 |     0   (0)| 00:00:01 |
+|   8 |      TABLE ACCESS FULL | INTERPRETA | 41212 |  1046K|    34   (0)| 00:00:01 |
+|   9 |     TABLE ACCESS FULL  | PERSONAJES | 19596 |  1473K|    19   (0)| 00:00:01 |
+-------------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - filter(COUNT(*)>49)
+   3 - access("P"."ID"="ID_PERSONAJE")
+   4 - access("C"."ID"="ID_CONTENIDO")
+   7 - access("G"."NOMBRE"='terror' AND "C"."ID"="G"."ID_CONTENIDO")
+ 
+Note
+-----
+   - dynamic statistics used: dynamic sampling (level=2)
+   - this is an adaptive plan
+
+------------------------------------------------------------------------------------
+CREATE MATERIALIZED VIEW contenido_2_0 AS
+SELECT C.id, C.titulo, G.nombre
+FROM contenido C, generos G
+WHERE C.id = G.id_contenido;
+
+CREATE BITMAP INDEX idx_genero ON contenido_2_0(nombre);
+
+------------------------------------------------------------------------------------
+Plan hash value: 2084809805
+ 
+------------------------------------------------------------------------------------------------------------
+| Id  | Operation                                  | Name          | Rows  | Bytes | Cost (%CPU)| Time     |
+------------------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT                           |               |   252 | 64764 |    56   (4)| 00:00:01 |
+|*  1 |  FILTER                                    |               |       |       |            |          |
+|   2 |   HASH GROUP BY                            |               |   252 | 64764 |    56   (4)| 00:00:01 |
+|*  3 |    HASH JOIN                               |               |   252 | 64764 |    55   (2)| 00:00:01 |
+|*  4 |     HASH JOIN                              |               |   252 | 45360 |    35   (0)| 00:00:01 |
+|   5 |      MAT_VIEW ACCESS BY INDEX ROWID BATCHED| CONTENIDO_2_0 |    18 |  2772 |     1   (0)| 00:00:01 |
+|   6 |       BITMAP CONVERSION TO ROWIDS          |               |       |       |            |          |
+|*  7 |        BITMAP INDEX SINGLE VALUE           | IDX_GENERO    |       |       |            |          |
+|   8 |      TABLE ACCESS FULL                     | INTERPRETA    | 41212 |  1046K|    34   (0)| 00:00:01 |
+|   9 |     TABLE ACCESS FULL                      | PERSONAJES    | 19596 |  1473K|    19   (0)| 00:00:01 |
+------------------------------------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - filter(COUNT(*)>49)
+   3 - access("P"."ID"="ID_PERSONAJE")
+   4 - access("CONTENIDO_2_0"."ID"="ID_CONTENIDO")
+   7 - access("NOMBRE"='terror')
+ 
+Note
+-----
+   - dynamic statistics used: dynamic sampling (level=2)
+   - this is an adaptive plan
+
+------------------------------------------------------------------------------------
+
+CREATE MATERIALIZED VIEW terror_menor_50 AS
+SELECT A.id, A.titulo, B.num_actores, B.id_personaje
+FROM (
+-- Devuelve una lista de tuplas (id, titulo) de aquellos contenidos que
+-- pertenecen al genero de terror.
+    SELECT *
+    FROM contenido_2_0
+    WHERE nombre = 'terror'
+) A, (
+-- Devuelve tuplas como (numero de veces, id_contenido, id_personaje) en las que
+-- el numero de actores para interpretar un personaje dentro de un mismo contenido (pelicula/serie)
+-- es al menos de 50
+    SELECT COUNT(*) AS num_actores, id_contenido, id_personaje
+    FROM interpreta I
+    GROUP BY id_contenido, id_personaje
+    HAVING COUNT(*) > 49
+) B
+WHERE A.id = B.id_contenido;
+
+Plan hash value: 1539218775
+ 
+------------------------------------------------------------------------------------------------
+| Id  | Operation                    | Name            | Rows  | Bytes | Cost (%CPU)| Time     |
+------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT             |                 |     1 |   168 |     4   (0)| 00:00:01 |
+|   1 |  NESTED LOOPS                |                 |     1 |   168 |     4   (0)| 00:00:01 |
+|   2 |   NESTED LOOPS               |                 |     1 |   168 |     4   (0)| 00:00:01 |
+|   3 |    MAT_VIEW ACCESS FULL      | TERROR_MENOR_50 |     1 |   103 |     3   (0)| 00:00:01 |
+|*  4 |    INDEX UNIQUE SCAN         | PK_PER_ID       |     1 |       |     0   (0)| 00:00:01 |
+|   5 |   TABLE ACCESS BY INDEX ROWID| PERSONAJES      |     1 |    65 |     1   (0)| 00:00:01 |
+------------------------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   4 - access("P"."ID"="TERROR_MENOR_50"."ID_PERSONAJE")
+ 
+Note
+-----
+   - dynamic statistics used: dynamic sampling (level=2)
+   - this is an adaptive plan
+
+
+tercera consulta
+-----------------------------------------------------------------------------------------------------
+Plan hash value: 3390147553
+ 
+-----------------------------------------------------------------------------------------------------
+| Id  | Operation                      | Name               | Rows  | Bytes | Cost (%CPU)| Time     |
+-----------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT               |                    |   778 | 60684 |   146   (3)| 00:00:01 |
+|*  1 |  HASH JOIN                     |                    |   778 | 60684 |   146   (3)| 00:00:01 |
+|   2 |   VIEW                         |                    |   778 | 10114 |    78   (4)| 00:00:01 |
+|*  3 |    HASH GROUP BY               |                    |   778 | 30342 |    78   (4)| 00:00:01 |
+|   4 |     NESTED LOOPS               |                    |   778 | 30342 |    77   (3)| 00:00:01 |
+|   5 |      VIEW                      |                    |    58 |   754 |    19  (11)| 00:00:01 |
+|   6 |       HASH UNIQUE              |                    |    58 |  2262 |    19  (11)| 00:00:01 |
+|*  7 |        HASH JOIN SEMI          |                    |    58 |  2262 |    18   (6)| 00:00:01 |
+|   8 |         VIEW                   |                    |   121 |  1573 |     9  (12)| 00:00:01 |
+|   9 |          UNION-ALL             |                    |       |       |            |          |
+|* 10 |           HASH GROUP BY        |                    |    52 |  2080 |     4  (25)| 00:00:01 |
+|* 11 |            TABLE ACCESS FULL   | RELACION_PELICULAS |    52 |  2080 |     3   (0)| 00:00:01 |
+|* 12 |           HASH JOIN RIGHT SEMI |                    |    69 |  4554 |     5   (0)| 00:00:01 |
+|* 13 |            TABLE ACCESS FULL   | RELACION_PELICULAS |    52 |  2080 |     3   (0)| 00:00:01 |
+|  14 |            INDEX FAST FULL SCAN| PK_RP              |   248 |  6448 |     2   (0)| 00:00:01 |
+|* 15 |         TABLE ACCESS FULL      | CONTENIDO          |  2662 | 69212 |     9   (0)| 00:00:01 |
+|* 16 |      INDEX RANGE SCAN          | PK_PAR             |    13 |   338 |     1   (0)| 00:00:01 |
+|  17 |   TABLE ACCESS FULL            | PERSONAL           | 39172 |  2486K|    68   (0)| 00:00:01 |
+-----------------------------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - access("P"."ID"="A"."ID_ACTOR")
+   3 - filter(COUNT(*)=1)
+   7 - access("C"."ID"="S"."ID")
+  10 - filter(COUNT(*)>=2)
+  11 - filter("TIPO"='follows')
+  12 - access("ID_PELICULA_A"="ID_PELICULA_A")
+  13 - filter("TIPO"='follows')
+  15 - filter("ESTRENO">=1990 AND "ESTRENO"<2000)
+  16 - access("P"."ID_CONTENIDO"="S"."ID")
+ 
+Note
+-----
+   - dynamic statistics used: dynamic sampling (level=2)
+   - this is an adaptive plan
+
+-----------------------------------------------------------------------------------------------------
+
+CREATE MATERIALIZED VIEW Sagas90 AS
+SELECT DISTINCT S.id
+FROM contenido C, (
+-- Saca la lista de sagas con al menos 3 peliculas
+  SELECT id_pelicula_a as id
+  FROM (
+      SELECT *
+      FROM relacion_peliculas
+      WHERE tipo = 'follows'
+  ) T1
+  GROUP BY id_pelicula_a
+  HAVING COUNT(*) >= 2  -- es 2 y no 3 ya que la primera pelicula no se cuenta, se usa como identificador de saga
+  UNION ALL 
+  -- Devuelve las peliculas que pertenecen a la lista de sagas
+  -- siendo "saga" la primera pelicula de la saga
+  SELECT id_pelicula_b as id
+  FROM relacion_peliculas
+  WHERE id_pelicula_a IN (
+      SELECT id_pelicula_a
+      FROM relacion_peliculas
+      WHERE tipo = 'follows'
+  )
+) S
+WHERE C.id = S.id and 
+  1990 <= estreno and estreno < 2000;
+
+-----------------------------------------------------------------------------------------------------
+
+Plan hash value: 3577280198
+ 
+-------------------------------------------------------------------------------------
+| Id  | Operation                | Name     | Rows  | Bytes | Cost (%CPU)| Time     |
+-------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT         |          |   121 |  9438 |    81   (2)| 00:00:01 |
+|*  1 |  HASH JOIN               |          |   121 |  9438 |    81   (2)| 00:00:01 |
+|   2 |   VIEW                   |          |   121 |  1573 |    13   (8)| 00:00:01 |
+|*  3 |    HASH GROUP BY         |          |   121 |  4719 |    13   (8)| 00:00:01 |
+|   4 |     NESTED LOOPS         |          |   121 |  4719 |    12   (0)| 00:00:01 |
+|   5 |      MAT_VIEW ACCESS FULL| SAGAS90  |     9 |   117 |     3   (0)| 00:00:01 |
+|*  6 |      INDEX RANGE SCAN    | PK_PAR   |    13 |   338 |     1   (0)| 00:00:01 |
+|   7 |   TABLE ACCESS FULL      | PERSONAL | 39172 |  2486K|    68   (0)| 00:00:01 |
+-------------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - access("P"."ID"="A"."ID_ACTOR")
+   3 - filter(COUNT(*)=1)
+   6 - access("P"."ID_CONTENIDO"="SAGAS90"."ID")
+ 
+Note
+-----
+   - dynamic statistics used: dynamic sampling (level=2)
+   - this is an adaptive plan
+
+-----------------------------------------------------------------------------------------------------
+
+CREATE MATERIALIZED VIEW participacionUnicaSaga90 AS
+SELECT id_actor
+FROM participa P , (
+-- Selecciona de la lista de peliculas que pertenecen a una saga de al menos 3 peliculas, las que
+-- se estrenaron en la decada de los 90 
+    SELECT *
+    FROM sagas90
+) S
+WHERE P.id_contenido = S.id
+GROUP BY id_actor
+HAVING COUNT(*) = 1;
+
+-----------------------------------------------------------------------------------------------------
+
+Plan hash value: 3077153851
+ 
+--------------------------------------------------------------------------------------------------
+| Id  | Operation             | Name                     | Rows  | Bytes | Cost (%CPU)| Time     |
+--------------------------------------------------------------------------------------------------
+|   0 | SELECT STATEMENT      |                          |   187 | 14586 |    71   (0)| 00:00:01 |
+|*  1 |  HASH JOIN            |                          |   187 | 14586 |    71   (0)| 00:00:01 |
+|   2 |   MAT_VIEW ACCESS FULL| PARTICIPACIONUNICASAGA90 |   187 |  2431 |     3   (0)| 00:00:01 |
+|   3 |   TABLE ACCESS FULL   | PERSONAL                 | 39172 |  2486K|    68   (0)| 00:00:01 |
+--------------------------------------------------------------------------------------------------
+ 
+Predicate Information (identified by operation id):
+---------------------------------------------------
+ 
+   1 - access("P"."ID"="PARTICIPACIONUNICASAGA90"."ID_ACTOR")
+ 
+Note
+-----
+   - dynamic statistics used: dynamic sampling (level=2)
+   - this is an adaptive plan
