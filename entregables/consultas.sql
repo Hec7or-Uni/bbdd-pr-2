@@ -7,14 +7,15 @@ FROM (
   FROM (
     -- Devuelve tuplas (num_actores, id_contenido) en las que el num_actores es <= 3 
     SELECT id_contenido
-    FROM participa
+    FROM participa PA, peliculas P
+    WHERE PA.id_contenido = P.id
     GROUP BY id_contenido
     HAVING COUNT(*) <= 3
 )
 ) N, (
-  -- Devuelve el numero total de contenidos
+  -- Devuelve el numero total de peliculas
   SELECT COUNT(*) AS num_contenidos
-  FROM contenido
+  FROM peliculas
 ) D;
 
 -- CONSULTA 2
